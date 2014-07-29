@@ -1,8 +1,7 @@
 ;(function() {
   var Game = function() {
-    var canvas = document.getElementById("space-invaders");
-    var screen = canvas.getContext('2d');
-    var gameSize = { x: canvas.width, y: canvas.height };
+    var screen = document.getElementById("space-invaders").getContext('2d');
+    var gameSize = { x: screen.canvas.width, y: screen.canvas.height };
     this.bodies = createInvaders(this).concat(new Player(this, gameSize));
 
     this.shootSound = document.getElementById('shoot-sound');
