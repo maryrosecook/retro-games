@@ -169,13 +169,13 @@
   var Keyboarder = function() {
     var keyState = {};
 
-    window.onkeydown = function(e) {
+    window.addEventListener('keydown', function(e) {
       keyState[e.keyCode] = true;
-    };
+    });
 
-    window.onkeyup = function(e) {
+    window.addEventListener('keyup', function(e) {
       keyState[e.keyCode] = false;
-    };
+    });
 
     this.isDown = function(keyCode) {
       return keyState[keyCode] === true;
@@ -234,10 +234,6 @@
       }).length > 0;
   };
 
-  window.onload = function() {
-    new Game("screen");
-  };
-
   var reportCollisions = function(bodies) {
     var collisions = [];
     for (var i = 0; i < bodies.length; i++) {
@@ -287,4 +283,8 @@
       return n1 / d >= 0 && n1 / d <= 1 && n2 / d >= 0 && n2 / d <= 1;
     }
   };
+
+  window.addEventListener('load', function() {
+    new Game("screen");
+  });
 })(this);
