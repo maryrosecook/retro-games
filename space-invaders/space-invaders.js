@@ -18,12 +18,8 @@
 
   Game.prototype = {
     update: function() {
-      var self = this;
-      var notCollidingWithAnything = function(b1) {
-        return self.bodies.filter(function(b2) { return colliding(b1, b2); }).length === 0;
-      };
+      reportCollisions(this.bodies);
 
-      this.bodies = this.bodies.filter(notCollidingWithAnything);
       for (var i = 0; i < this.bodies.length; i++) {
         this.bodies[i].update();
       }
@@ -46,6 +42,13 @@
 
     addBody: function(body) {
       this.bodies.push(body);
+    },
+
+    removeBody: function(body) {
+      var bodyIndex = this.bodies.indexOf(body);
+      if (bodyIndex !== -1) {
+        this.bodies.splice(bodyIndex, 1);
+      }
     }
   };
 
@@ -65,13 +68,18 @@
 
       if (Math.random() > 0.995 &&
           !this.game.invadersBelow(this)) {
-        var bullet = new Bullet({ x: this.center.x, y: this.center.y + this.size.y / 2 },
+        var bullet = new Bullet(this.game,
+                                { x: this.center.x, y: this.center.y + this.size.y / 2 },
                                 { x: Math.random() - 0.5, y: 2 });
         this.game.addBody(bullet);
       }
 
       this.center.x += this.speedX;
       this.patrolX += this.speedX;
+    },
+
+    collision: function() {
+      this.game.removeBody(this);
     }
   };
 
@@ -102,16 +110,22 @@
       }
 
       if (this.keyboarder.isDown(this.keyboarder.KEYS.S)) {
-        var bullet = new Bullet({ x: this.center.x, y: this.center.y - this.size.y - 10 },
+        var bullet = new Bullet(this.game,
+                                { x: this.center.x, y: this.center.y - this.size.y - 10 },
                                 { x: 0, y: -7 });
         this.game.addBody(bullet);
         this.game.shootSound.load();
         this.game.shootSound.play();
       }
+    },
+
+    collision: function() {
+      this.game.removeBody(this);
     }
   };
 
-  var Bullet = function(center, velocity) {
+  var Bullet = function(game, center, velocity) {
+    this.game = game;
     this.center = center;
     this.size = { x: 3, y: 3 };
     this.velocity = velocity;
@@ -121,6 +135,10 @@
     update: function() {
       this.center.x += this.velocity.x;
       this.center.y += this.velocity.y;
+    },
+
+    collision: function() {
+      this.game.removeBody(this);
     }
   };
 
@@ -154,6 +172,27 @@
         b1.center.x - b1.size.x / 2 > b2.center.x + b2.size.x / 2 ||
         b1.center.y - b1.size.y / 2 > b2.center.y + b2.size.y / 2
     );
+  };
+
+  var reportCollisions = function(bodies) {
+    var collisions = [];
+    for (var i = 0; i < bodies.length; i++) {
+      for (var j = i + 1; j < bodies.length; j++) {
+        if (colliding(bodies[i], bodies[j])) {
+          collisions.push([bodies[i], bodies[j]]);
+        }
+      }
+    }
+
+    for (var i = 0; i < collisions.length; i++) {
+      if (collisions[i][0].collision !== undefined) {
+        collisions[i][0].collision(collisions[i][1]);
+      }
+
+      if (collisions[i][1].collision !== undefined) {
+        collisions[i][1].collision(collisions[i][0]);
+      }
+    }
   };
 
   window.addEventListener('load', function() {
