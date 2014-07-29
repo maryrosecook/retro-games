@@ -1,15 +1,15 @@
 ;(function() {
   var Game = function() {
     var screen = document.getElementById("space-invaders").getContext('2d');
-    var gameSize = { x: screen.canvas.width, y: screen.canvas.height };
-    this.bodies = createInvaders(this).concat(new Player(this, gameSize));
+    this.size = { x: screen.canvas.width, y: screen.canvas.height };
+    this.bodies = createInvaders(this).concat(new Player(this));
 
     this.shootSound = document.getElementById('shoot-sound');
 
     var self = this;
     var tick = function() {
       self.update();
-      self.draw(screen, gameSize);
+      self.draw(screen);
       requestAnimationFrame(tick);
     };
 
@@ -25,8 +25,8 @@
       }
     },
 
-    draw: function(screen, gameSize) {
-      screen.clearRect(0, 0, gameSize.x, gameSize.y);
+    draw: function(screen) {
+      screen.clearRect(0, 0, this.size.x, this.size.y);
       for (var i = 0; i < this.bodies.length; i++) {
         drawRect(screen, this.bodies[i]);
       }
@@ -94,10 +94,10 @@
     return invaders;
   };
 
-  var Player = function(game, gameSize) {
+  var Player = function(game) {
     this.game = game;
     this.size = { x: 15, y: 15 };
-    this.center = { x: gameSize.x / 2, y: gameSize.y - this.size.y * 2 };
+    this.center = { x: this.game.size.x / 2, y: this.game.size.y - this.size.y * 2 };
     this.keyboarder = new Keyboarder();
   };
 
