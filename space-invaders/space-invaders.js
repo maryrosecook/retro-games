@@ -109,7 +109,7 @@
         this.center.x += 2;
       }
 
-      if (this.keyboarder.isDown(this.keyboarder.KEYS.S)) {
+      if (this.keyboarder.isDown(this.keyboarder.KEYS.SPACE)) {
         var bullet = new Bullet(this.game,
                                 { x: this.center.x, y: this.center.y - this.size.y - 10 },
                                 { x: 0, y: -7 });
@@ -156,7 +156,7 @@
       return keyState[keyCode] === true;
     };
 
-    this.KEYS = { LEFT: 37, RIGHT: 39, S: 83 };
+    this.KEYS = { LEFT: 37, RIGHT: 39, SPACE: 32 };
   };
 
   var drawRect = function(screen, body) {
