@@ -8,17 +8,16 @@
                    new Asteroid(this, { x: 150, y: 225 }, 30),
                    new Player(this)];
 
-    var self = this;
-    loadSound("shoot.wav", function(shootSound) {
-      self.shootSound = shootSound;
-      var tick = function() {
-        self.update();
-        self.draw(screen);
-        requestAnimationFrame(tick);
-      };
+    this.shootSound = document.getElementById("shoot-sound");
 
-      tick();
-    });
+    var self = this;
+    var tick = function() {
+      self.update();
+      self.draw(screen);
+      requestAnimationFrame(tick);
+    };
+
+    tick();
   };
 
   Game.prototype = {
@@ -233,17 +232,6 @@
       .filter(function(x) {
         return trig.linesIntersecting(x[0], x[1]);
       }).length > 0;
-  };
-
-  var loadSound = function(url, callback) {
-    var sound = new Audio(url);
-    var loaded = function() {
-      callback(sound);
-      sound.removeEventListener('canplaythrough', loaded);
-    };
-
-    sound.addEventListener('canplaythrough', loaded);
-    sound.load();
   };
 
   window.onload = function() {
