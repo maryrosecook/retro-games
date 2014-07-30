@@ -135,6 +135,15 @@
     update: function() {
       this.center.x += this.velocity.x;
       this.center.y += this.velocity.y;
+
+      var screenRect = {
+        center: { x: this.game.size.x / 2, y: this.game.size.y / 2 },
+        size: this.game.size
+      };
+
+      if (!colliding(this, screenRect)) {
+        this.game.removeBody(this);
+      }
     },
 
     collision: function() {
