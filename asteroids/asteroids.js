@@ -149,14 +149,15 @@
     this.angle = 0;
     this.center = start;
     this.points = [start, geom.translate(start, { x: this.velocity.x, y: this.velocity.y })];
-    this.dieTime = new Date().getTime() + 1000;
   };
 
   Bullet.prototype = {
     update: function() {
       move(this);
 
-      if (new Date().getTime() > this.dieTime) {
+      var gameRect = geom.rect(this.game);
+      if (this.center.x < gameRect.l || this.center.x > gameRect.r ||
+          this.center.y < gameRect.t || this.center.y > gameRect.b) {
         this.game.removeBody(this);
       }
     },
@@ -288,6 +289,15 @@
 
       if (d === 0.0) return false;
       return n1 / d >= 0 && n1 / d <= 1 && n2 / d >= 0 && n2 / d <= 1;
+    },
+
+    rect: function(obj) {
+      return {
+        l: obj.center.x - obj.size.x / 2,
+        r: obj.center.x + obj.size.x / 2,
+        t: obj.center.y - obj.size.y / 2,
+        b: obj.center.y + obj.size.y / 2
+      }
     }
   };
 
