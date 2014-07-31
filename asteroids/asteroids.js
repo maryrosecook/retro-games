@@ -147,11 +147,16 @@
     this.angle = 0;
     this.center = start;
     this.points = [start, trig.translate(start, { x: this.velocity.x, y: this.velocity.y })];
+    this.dieTime = new Date().getTime() + 1000;
   };
 
   Bullet.prototype = {
     update: function() {
       move(this);
+
+      if (new Date().getTime() > this.dieTime) {
+        this.game.removeBody(this);
+      }
     },
 
     draw: function(screen) {
