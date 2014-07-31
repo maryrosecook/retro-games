@@ -96,7 +96,7 @@
   var Player = function(game) {
     this.game = game;
     this.angle = 0;
-    this.center = { x: this.game.size.x / 2, y: this.game.size.y / 2 };
+    this.center = { x: this.game.center.x, y: this.game.center.y };
     this.points = [{ x: this.center.x - 8, y: this.center.y + 9 },
                    { x: this.center.x,     y: this.center.y - 10 },
                    { x: this.center.x + 8, y: this.center.y + 9 }];
