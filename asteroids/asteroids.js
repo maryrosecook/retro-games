@@ -87,8 +87,8 @@
   };
 
   var move = function(body) {
-    body.center = trig.translate(body.center, body.velocity);
-    body.points = body.points.map(function(x) { return trig.translate(x, body.velocity); });
+    body.center = geom.translate(body.center, body.velocity);
+    body.points = body.points.map(function(x) { return geom.translate(x, body.velocity); });
   };
 
   var Player = function(game) {
@@ -112,8 +112,8 @@
       }
 
       if (this.keyboarder.isDown(this.keyboarder.KEYS.UP)) {
-        this.velocity = trig.translate(this.velocity,
-                                       trig.rotate({ x: 0, y: -0.05 }, { x: 0, y: 0 }, this.angle));
+        this.velocity = geom.translate(this.velocity,
+                                       geom.rotate({ x: 0, y: -0.05 }, { x: 0, y: 0 }, this.angle));
       }
 
       var now = new Date().getTime();
@@ -132,7 +132,7 @@
 
     turn: function(angleDelta) {
       var center = this.center;
-      this.points = this.points.map(function(x) { return trig.rotate(x, center, angleDelta); })
+      this.points = this.points.map(function(x) { return geom.rotate(x, center, angleDelta); })
       this.angle += angleDelta;
     },
 
@@ -143,10 +143,10 @@
 
   var Bullet = function(game, start, angle) {
     this.game = game;
-    this.velocity = trig.rotate({ x: 0, y: -5 }, { x: 0, y: 0 }, angle);
+    this.velocity = geom.rotate({ x: 0, y: -5 }, { x: 0, y: 0 }, angle);
     this.angle = 0;
     this.center = start;
-    this.points = [start, trig.translate(start, { x: this.velocity.x, y: this.velocity.y })];
+    this.points = [start, geom.translate(start, { x: this.velocity.x, y: this.velocity.y })];
     this.dieTime = new Date().getTime() + 1000;
   };
 
@@ -212,7 +212,7 @@
     var points = [];
     for (var a = 0; a < 2 * Math.PI; a += 2 * Math.PI / pointCount) {
       var random = Math.random();
-      points.push(trig.rotate({
+      points.push(geom.rotate({
         x: center.x + radius * (0.2 + random),
         y: center.y - radius * (0.2 + random)
       }, center, a));
@@ -235,7 +235,7 @@
     if (b1 === b2) return false;
     return pairs(pointsToLines(b1.points), pointsToLines(b2.points))
       .filter(function(x) {
-        return trig.linesIntersecting(x[0], x[1]);
+        return geom.linesIntersecting(x[0], x[1]);
       }).length > 0;
   };
 
@@ -260,7 +260,7 @@
     }
   };
 
-  var trig = {
+  var geom = {
     translate: function(point, translation) {
       return { x: point.x + translation.x, y: point.y + translation.y };
     },
