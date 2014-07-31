@@ -1,7 +1,9 @@
 ;(function() {
   var Game = function(canvasId) {
     var screen = document.getElementById(canvasId).getContext('2d');
+
     this.size = { x: screen.canvas.width, y: screen.canvas.height };
+    this.center = { x: this.size.x / 2, y: this.size.y / 2 };
 
     this.bodies = [new Asteroid(this, { x: 75, y: 75 }, 30),
                    new Asteroid(this, { x: 225, y: 75 }, 30),
