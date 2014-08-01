@@ -5,10 +5,12 @@
     this.size = { x: screen.canvas.width, y: screen.canvas.height };
     this.center = { x: this.size.x / 2, y: this.size.y / 2 };
 
-    this.bodies = [new Asteroid(this, { x: 75, y: 75 }, 30),
-                   new Asteroid(this, { x: 225, y: 75 }, 30),
-                   new Asteroid(this, { x: 150, y: 225 }, 30),
-                   new Player(this)];
+    this.bodies = [
+      new Asteroid(this, { x: 75, y: 75 }, 30),
+      new Asteroid(this, { x: 225, y: 75 }, 30),
+      new Asteroid(this, { x: 150, y: 225 }, 30),
+      new Player(this)
+    ];
 
     this.shootSound = document.getElementById("shoot-sound");
 
@@ -47,6 +49,21 @@
       if (bodyIndex !== -1) {
         this.bodies.splice(bodyIndex, 1);
       }
+    },
+
+    wrapIfOffScreen: function(obj) {
+      var screen = geom.rect(this);
+      if ((obj.points.filter(function(p) { return p.x > screen.l; }).length === 0 &&
+           obj.velocity.x < 0) ||
+          (obj.points.filter(function(p) { return p.x < screen.r; }).length === 0 &&
+           obj.velocity.x > 0)) {
+        moveBody(obj, { x: this.size.x - obj.center.x, y: obj.center.y });
+      } else if ((obj.points.filter(function(p) { return p.y > screen.t; }).length === 0 &&
+                  obj.velocity.y < 0) ||
+                 (obj.points.filter(function(p) { return p.y < screen.b; }).length === 0 &&
+                  obj.velocity.y > 0)) {
+        moveBody(obj, { x: obj.center.x, y: this.size.y - obj.center.y });
+      }
     }
   };
 
@@ -61,7 +78,8 @@
 
   Asteroid.prototype = {
     update: function() {
-      move(this);
+      moveBody(this, geom.translate(this.center, this.velocity));
+      this.game.wrapIfOffScreen(this);
     },
 
     draw: function(screen) {
@@ -88,9 +106,10 @@
     }
   };
 
-  var move = function(body) {
-    body.center = geom.translate(body.center, body.velocity);
-    body.points = body.points.map(function(x) { return geom.translate(x, body.velocity); });
+  var moveBody = function(body, center) {
+    var translation = geom.vectorTo(body.center, center);
+    body.center = center;
+    body.points = body.points.map(function(x) { return geom.translate(x, translation); });
   };
 
   var Player = function(game) {
@@ -129,7 +148,8 @@
                                         this.angle));
       }
 
-      move(this);
+      moveBody(this, geom.translate(this.center, this.velocity));
+      this.game.wrapIfOffScreen(this);
     },
 
     turn: function(angleDelta) {
@@ -153,7 +173,7 @@
 
   Bullet.prototype = {
     update: function() {
-      move(this);
+      moveBody(this, geom.translate(this.center, this.velocity));
 
       var gameRect = geom.rect(this.game);
       if (this.center.x < gameRect.l || this.center.x > gameRect.r ||
@@ -266,6 +286,10 @@
   var geom = {
     translate: function(point, translation) {
       return { x: point.x + translation.x, y: point.y + translation.y };
+    },
+
+    vectorTo: function(point1, point2) {
+      return { x: point2.x - point1.x, y: point2.y - point1.y };
     },
 
     rotate: function(point, pivot, angle) {
