@@ -111,7 +111,7 @@
         head.direction.x = -1;
         head.direction.y = 0;
       } else if (this.keyboarder.isDown(this.keyboarder.KEYS.RIGHT) &&
-                 head.direction.x !== -11) {
+                 head.direction.x !== -1) {
         head.direction.x = 1;
         head.direction.y = 0;
       }
