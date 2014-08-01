@@ -95,11 +95,11 @@
 
     move: function() {
       var head = this.blocks[0];
-      move(head, head.direction);
+      moveBlock(head, head.direction);
 
       var prevBlock = head;
       for (var i = 1; i < this.blocks.length; i++) {
-        move(this.blocks[i], prevBlock.direction);
+        moveBlock(this.blocks[i], prevBlock.direction);
         prevBlock = this.blocks[i];
       }
     },
@@ -128,7 +128,7 @@
     }
   };
 
-  var move = function(block, direction) {
+  var moveBlock = function(block, direction) {
     block.center.x += direction.x * BLOCK_SIZE;
     block.center.y += direction.y * BLOCK_SIZE;
   };
