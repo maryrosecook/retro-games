@@ -122,10 +122,11 @@
                               { x: 1, y: 0 });
     this.game.addBody(head);
     this.blocks = [head];
+
+    this.lastMove = 0;
   };
 
   Player.prototype = {
-    lastMove: 0,
     update: function() {
       this.handleKeyboard();
 
