@@ -239,7 +239,7 @@
 
     var p = { x: 0, y: ordinate(h * 0.7, h) };
     while (p.x < w) {
-      var nextP = { x: p.x + ordinate(10, 30), y: ordinate(h * 0.7, h) };
+      var nextP = { x: p.x + ordinate(30, 40), y: ordinate(h * 0.7, h) };
       lines.push(new MountainLine({ x: p.x, y: p.y }, nextP));
       p = nextP;
     }
