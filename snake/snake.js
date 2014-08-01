@@ -23,7 +23,7 @@
   Game.prototype = {
     update: function() {
       this.player.update();
-      // reportCollisions(this.bodies);
+      reportCollisions(this.bodies);
     },
 
     draw: function(screen) {
@@ -42,6 +42,19 @@
       if (bodyIndex !== -1) {
         this.bodies.splice(bodyIndex, 1);
       }
+    },
+
+    isSquareFree: function(center) {
+      return this.bodies.filter(function(b) {
+        return colliding(b, { center: center });
+      }).length === 0;
+    },
+
+    randomSquare: function() {
+      return {
+        x: Math.floor(this.size.x / BLOCK_SIZE * Math.random()) * BLOCK_SIZE + BLOCK_SIZE / 2,
+        y: Math.floor(this.size.y / BLOCK_SIZE * Math.random()) * BLOCK_SIZE + BLOCK_SIZE / 2
+      };
     }
   };
 
@@ -57,8 +70,10 @@
     }
   };
 
-  var SnakeBlock = function(game, center, direction) {
     this.game = game;
+  var SnakeBlock = function(game, player, center, direction) {
+    this.game = game;
+    this.player = player;
     this.center = center;
     this.size = { x: BLOCK_SIZE, y: BLOCK_SIZE };
     this.direction = direction;
@@ -67,6 +82,14 @@
   SnakeBlock.prototype = {
     draw: function(screen) {
       drawRect(screen, this, "black");
+    },
+
+    collision: function(otherBody) {
+      if (otherBody instanceof WallBlock || otherBody instanceof SnakeBlock) {
+        this.player.die();
+      } else if (otherBody instanceof FoodBlock) {
+        this.player.eat(otherBody);
+      }
     }
   };
 
@@ -75,6 +98,7 @@
     this.keyboarder = new Keyboarder();
 
     var head = new SnakeBlock(this.game,
+                              this,
                               { x: this.game.center.x, y: this.game.center.y },
                               { x: 1, y: 0 });
     this.game.addBody(head);
@@ -124,6 +148,10 @@
                  head.direction.y !== -1) {
         head.direction.y = 1;
         head.direction.x = 0;
+      }
+    die: function() {
+      for (var i = 0; i < this.blocks.length; i++) {
+        this.game.removeBody(this.blocks[i]);
       }
     }
   };
