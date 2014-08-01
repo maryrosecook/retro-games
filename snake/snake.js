@@ -94,27 +94,39 @@
     },
 
     collision: function(otherBody) {
-      if (otherBody instanceof SnakeBlock) {
+      if (otherBody instanceof HeadBlock) {
         this.game.removeBody(this);
       }
     }
   };
 
-  var SnakeBlock = function(game, player, center, direction) {
+  var BodyBlock = function(game, center) {
     this.game = game;
-    this.player = player;
     this.center = center;
     this.size = { x: BLOCK_SIZE, y: BLOCK_SIZE };
-    this.direction = direction;
   };
 
-  SnakeBlock.prototype = {
+  BodyBlock.prototype = {
+    draw: function(screen) {
+      drawRect(screen, this, "black");
+    }
+  };
+
+  var HeadBlock = function(game, player, center, direction) {
+    this.game = game;
+    this.center = center;
+    this.direction = direction;
+    this.player = player;
+    this.size = { x: BLOCK_SIZE, y: BLOCK_SIZE };
+  };
+
+  HeadBlock.prototype = {
     draw: function(screen) {
       drawRect(screen, this, "black");
     },
 
     collision: function(otherBody) {
-      if (otherBody instanceof WallBlock || otherBody instanceof SnakeBlock) {
+      if (otherBody instanceof WallBlock || otherBody instanceof BodyBlock) {
         this.player.die();
       } else if (otherBody instanceof FoodBlock) {
         this.player.eat();
@@ -126,14 +138,15 @@
     this.game = game;
     this.keyboarder = new Keyboarder();
 
-    var head = new SnakeBlock(this.game,
-                              this,
-                              { x: this.game.center.x, y: this.game.center.y },
-                              { x: 1, y: 0 });
+    var head = new HeadBlock(this.game,
+                             this,
+                             { x: this.game.center.x, y: this.game.center.y },
+                             { x: 1, y: 0 });
     this.game.addBody(head);
     this.blocks = [head];
 
     this.lastMove = 0;
+    this.addBlock = false;
   };
 
   Player.prototype = {
@@ -149,12 +162,22 @@
 
     move: function() {
       var head = this.blocks[0];
-      moveBlock(head, head.direction);
+      var prevHeadCenter = { x: head.center.x, y: head.center.y };
+      head.center.x += head.direction.x * BLOCK_SIZE;
+      head.center.y += head.direction.y * BLOCK_SIZE;
 
-      var prevBlock = head;
-      for (var i = 1; i < this.blocks.length; i++) {
-        moveBlock(this.blocks[i], prevBlock.direction);
-        prevBlock = this.blocks[i];
+      if (this.addBlock === true) {
+        var block = new BodyBlock(this.game, prevHeadCenter);
+        this.game.addBody(block);
+        this.blocks.splice(1, 0, block);
+        this.addBlock = false;
+      } else {
+        var prevBlockCenter = prevHeadCenter;
+        for (var i = 1; i < this.blocks.length; i++) {
+          var oldCenter = this.blocks[i].center;
+          this.blocks[i].center = { x: prevBlockCenter.x, y: prevBlockCenter.y };
+          prevBlockCenter = oldCenter;
+        }
       }
     },
 
@@ -182,6 +205,7 @@
     },
 
     eat: function() {
+      this.addBlock = true;
       this.game.addFood();
     },
 
@@ -190,11 +214,6 @@
         this.game.removeBody(this.blocks[i]);
       }
     }
-  };
-
-  var moveBlock = function(block, direction) {
-    block.center.x += direction.x * BLOCK_SIZE;
-    block.center.y += direction.y * BLOCK_SIZE;
   };
 
   var Keyboarder = function() {
