@@ -8,8 +8,8 @@
     this.center = { x: this.size.x / 2, y: this.size.y / 2 };
 
     this.bodies = createWalls(this)
-    this.bodies = this.bodies.concat(new FoodBlock(this));
     this.player = new Player(this);
+    this.addFood();
 
     var self = this;
     var tick = function() {
@@ -56,6 +56,10 @@
         x: Math.floor(this.size.x / BLOCK_SIZE * Math.random()) * BLOCK_SIZE + BLOCK_SIZE / 2,
         y: Math.floor(this.size.y / BLOCK_SIZE * Math.random()) * BLOCK_SIZE + BLOCK_SIZE / 2
       };
+    },
+
+    addFood: function() {
+      this.addBody(new FoodBlock(this));
     }
   };
 
@@ -113,7 +117,7 @@
       if (otherBody instanceof WallBlock || otherBody instanceof SnakeBlock) {
         this.player.die();
       } else if (otherBody instanceof FoodBlock) {
-        this.player.eat(otherBody);
+        this.player.eat();
       }
     }
   };
@@ -177,8 +181,8 @@
       }
     },
 
-    eat: function(foodBlock) {
-
+    eat: function() {
+      this.game.addFood();
     },
 
     die: function() {
