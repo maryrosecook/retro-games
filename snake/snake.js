@@ -87,6 +87,12 @@
   FoodBlock.prototype = {
     draw: function(screen) {
       drawRect(screen, this, "green");
+    },
+
+    collision: function(otherBody) {
+      if (otherBody instanceof SnakeBlock) {
+        this.game.removeBody(this);
+      }
     }
   };
 
