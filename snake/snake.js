@@ -7,7 +7,8 @@
     this.size = { x: screen.canvas.width, y: screen.canvas.height };
     this.center = { x: this.size.x / 2, y: this.size.y / 2 };
 
-    this.bodies = createWalls(this);
+    this.bodies = createWalls(this)
+    this.bodies = this.bodies.concat(new FoodBlock(this));
     this.player = new Player(this);
 
     var self = this;
@@ -70,7 +71,25 @@
     }
   };
 
+  var FoodBlock = function(game) {
     this.game = game;
+
+    while (this.center === undefined) {
+      var center = this.game.randomSquare();
+      if (this.game.isSquareFree(center)) {
+        this.center = center;
+      }
+    }
+
+    this.size = { x: BLOCK_SIZE, y: BLOCK_SIZE };
+  };
+
+  FoodBlock.prototype = {
+    draw: function(screen) {
+      drawRect(screen, this, "green");
+    }
+  };
+
   var SnakeBlock = function(game, player, center, direction) {
     this.game = game;
     this.player = player;
@@ -149,6 +168,12 @@
         head.direction.y = 1;
         head.direction.x = 0;
       }
+    },
+
+    eat: function(foodBlock) {
+
+    },
+
     die: function() {
       for (var i = 0; i < this.blocks.length; i++) {
         this.game.removeBody(this.blocks[i]);
