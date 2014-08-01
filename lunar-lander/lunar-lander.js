@@ -243,7 +243,7 @@
       lines.push(new MountainLine({ x: p.x, y: p.y }, nextP));
       p = nextP;
     }
-    console.log(lines)
+
     return lines;
   };
 
