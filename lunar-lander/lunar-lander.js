@@ -5,7 +5,7 @@
     this.size = { x: screen.canvas.width, y: screen.canvas.height };
     this.center = { x: this.size.x / 2, y: this.size.y / 2 };
 
-    this.bodies = [];
+    this.bodies = createMountains(this);
     this.player = new Player(this);
 
     var self = this;
@@ -67,7 +67,12 @@
     }
   };
 
-  var BoostLine = function(game, p1, p2) {
+  var MountainLine = function(p1, p2) {
+    this.p1 = p1;
+    this.p2 = p2;
+  };
+
+  var BoostLine = function(p1, p2) {
     this.p1 = p1;
     this.p2 = p2;
   };
@@ -87,8 +92,8 @@
       new ShipBaseLine(game,
                        { x: c.x - w * 2, y: c.y + h * 3 },
                        { x: c.x + w * 2, y: c.y + h * 3 }),
-      new BoostLine(game, { x: c.x - w, y: c.y + h * 3 }, { x: c.x, y: c.y + h * 3 }),
-      new BoostLine(game, { x: c.x + w, y: c.y + h * 3 }, { x: c.x, y: c.y + h * 3 })
+      new BoostLine({ x: c.x - w, y: c.y + h * 3 }, { x: c.x, y: c.y + h * 3 }),
+      new BoostLine({ x: c.x + w, y: c.y + h * 3 }, { x: c.x, y: c.y + h * 3 })
     ];
 
     this.lines.forEach(function(l) {
@@ -121,7 +126,7 @@
     applyBoost: function() {
       if (this.boosting === true) {
         this.velocity = geom.translate(this.velocity,
-                                       geom.rotate({ x: 0, y: -0.003 },
+                                       geom.rotate({ x: 0, y: -0.004 },
                                                    { x: 0, y: 0 },
                                                    this.angle));
       }
@@ -220,6 +225,26 @@
         collisions[i][1].collision(collisions[i][0]);
       }
     }
+  };
+
+  var createMountains = function(game) {
+    var lines = [];
+
+    var w = game.size.x;
+    var h = game.size.y;
+
+    var ordinate = function(min, max) {
+      return min + (max - min) * Math.random();
+    };
+
+    var p = { x: 0, y: ordinate(h * 0.7, h) };
+    while (p.x < w) {
+      var nextP = { x: p.x + ordinate(10, 30), y: ordinate(h * 0.7, h) };
+      lines.push(new MountainLine({ x: p.x, y: p.y }, nextP));
+      p = nextP;
+    }
+    console.log(lines)
+    return lines;
   };
 
   var geom = {
