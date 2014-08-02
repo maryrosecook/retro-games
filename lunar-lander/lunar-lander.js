@@ -245,7 +245,7 @@
 
     var p1 = { x: 0, y: ordinate(h * 0.7, h) };
     while (p1.x < w) {
-      if (lines.length % 4 === 0) {
+      if ((3 + lines.length) % 5 === 0) {
         var p2 = { x: p1.x + ordinate(30, 40), y: p1.y };
         lines.push(new LandingPadLine(p1, p2));
       } else {
