@@ -27,7 +27,7 @@
     draw: function(screen) {
       screen.clearRect(0, 0, this.size.x, this.size.y);
       for (var i = 0; i < this.bodies.length; i++) {
-        drawLine(screen, this.bodies[i], this.bodies[i] instanceof LandingPadLine ? 3 : 1);
+        drawLine(screen, this.bodies[i], this.bodies[i] instanceof LandingPadLine ? 2 : 1);
       }
     },
 
@@ -243,30 +243,23 @@
       return min + (max - min) * Math.random();
     };
 
-    var p = { x: 0, y: ordinate(h * 0.7, h) };
-    while (p.x < w) {
-      var nextP = { x: p.x + ordinate(30, 40), y: ordinate(h * 0.7, h) };
-      var p1 = { x: p.x, y: p.y };
-      var p2 = nextP;
-      var angle = geom.angle(p1, p2);
-
-      if ((angle > 70 && angle < 110) || (angle > 250 && angle < 290)) {
+    var p1 = { x: 0, y: ordinate(h * 0.7, h) };
+    while (p1.x < w) {
+      if (lines.length % 4 === 0) {
+        var p2 = { x: p1.x + ordinate(30, 40), y: p1.y };
         lines.push(new LandingPadLine(p1, p2));
       } else {
+        var p2 = { x: p1.x + ordinate(30, 40), y: ordinate(h * 0.7, h) };
         lines.push(new MountainLine(p1, p2));
       }
 
-      p = nextP;
+      p1 = p2;
     }
 
     return lines;
   };
 
   var geom = {
-    angle: function(p1, p2) {
-      return Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180 / Math.PI + 90;
-    },
-
     translate: function(point, translation) {
       return { x: point.x + translation.x, y: point.y + translation.y };
     },
