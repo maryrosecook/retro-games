@@ -51,7 +51,7 @@
 
   ShipBaseLine.prototype = {
     collision: function(otherBody) {
-      // this.game.player.resolveCollision(this, otherBody);
+      this.game.player.resolveCollision(this, otherBody);
     }
   };
 
@@ -63,7 +63,7 @@
 
   ShipHullLine.prototype = {
     collision: function(otherBody) {
-      // this.game.player.resolveCollision(this, otherBody);
+      this.game.player.resolveCollision(this, otherBody);
     }
   };
 
@@ -92,11 +92,11 @@
 
     var c = this.center;
     this.lines = [
-      new ShipHullLine(game, { x: c.x, y: c.y - h }, { x: c.x + w, y: c.y + h }),
-      new ShipHullLine(game, { x: c.x - w, y: c.y + h }, { x: c.x, y: c.y - h }),
       new ShipBaseLine(game,
                        { x: c.x - w * 2, y: c.y + h * 3 },
                        { x: c.x + w * 2, y: c.y + h * 3 }),
+      new ShipHullLine(game, { x: c.x, y: c.y - h }, { x: c.x + w, y: c.y + h }),
+      new ShipHullLine(game, { x: c.x - w, y: c.y + h }, { x: c.x, y: c.y - h }),
       new BoostLine({ x: c.x - w, y: c.y + h * 3 }, { x: c.x, y: c.y + h * 3 }),
       new BoostLine({ x: c.x + w, y: c.y + h * 3 }, { x: c.x, y: c.y + h * 3 })
     ];
@@ -157,15 +157,16 @@
       }
     },
 
-    // resolveCollision: function(shipLine, otherLine) {
-    //   if (shipLine instanceof ShipBaseLine && otherBody instanceof LandingPadLine) {
-    //     // allow terrible landing for now
-    //     this.rotate(-this.angle);
-    //     this.velocity = { x: 0, y: 0 };
-    //   } else {
-    //     this.die();
-    //   }
-    // },
+    resolveCollision: function(playerLine, otherLine) {
+      if (playerLine instanceof ShipBaseLine && otherLine instanceof LandingPadLine) {
+        // allow terrible landing for now
+        this.rotate(-this.angle);
+        this.velocity = { x: 0, y: 0 };
+      } else if ((playerLine instanceof ShipBaseLine || playerLine instanceof ShipHullLine) &&
+                 otherLine instanceof MountainLine) {
+        this.die();
+      }
+    },
 
     rotate: function(angleChange) {
       this.angle += angleChange;
@@ -175,11 +176,11 @@
       }, this);
     },
 
-    // die: function() {
-    //   this.lines.forEach(function(l) {
-    //     this.game.removeBody(l);
-    //   }, this);
-    // }
+    die: function() {
+      this.lines.forEach(function(l) {
+        this.game.removeBody(l);
+      }, this);
+    }
   };
 
   var Keyboarder = function() {
