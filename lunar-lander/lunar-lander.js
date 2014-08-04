@@ -76,19 +76,19 @@
     var w = 5;
 
     this.angle = 0;
-    var c = this.center = { x: this.game.center.x, y: h * 2 };
+    var c = this.center = { x: this.game.center.x, y: h * 3 };
 
     this.boostLines = [
       new Line({ x: c.x - w, y: c.y + h * 3 }, { x: c.x, y: c.y + h * 3 }),
       new Line({ x: c.x + w, y: c.y + h * 3 }, { x: c.x, y: c.y + h * 3 })
     ];
 
-    this.baseLine = new Line({ x: c.x - w * 2, y: c.y + h * 3 },
-                             { x: c.x + w * 2, y: c.y + h * 3 });
+    this.baseLine = new Line({ x: c.x - w, y: c.y + h * 3 },
+                             { x: c.x + w, y: c.y + h * 3 });
 
     this.hullLines = [
-      new Line({ x: c.x, y: c.y - h }, { x: c.x + w, y: c.y + h }),
-      new Line({ x: c.x - w, y: c.y + h }, { x: c.x, y: c.y - h })
+      new Line({ x: c.x, y: c.y - h }, { x: c.x + w, y: c.y + h * 3 }),
+      new Line({ x: c.x - w, y: c.y + h * 3 }, { x: c.x, y: c.y - h })
     ];
 
     this.lines = this.hullLines.concat(this.baseLine);
