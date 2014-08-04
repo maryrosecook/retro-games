@@ -160,7 +160,6 @@
     resolveCollision: function(playerLine, otherLine) {
       if (playerLine instanceof ShipBaseLine && otherLine instanceof LandingPadLine) {
         // allow terrible landing for now
-        this.rotate(-this.angle);
         this.velocity = { x: 0, y: 0 };
       } else if ((playerLine instanceof ShipBaseLine || playerLine instanceof ShipHullLine) &&
                  otherLine instanceof MountainLine) {
