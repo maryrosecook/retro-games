@@ -5,8 +5,7 @@
     this.size = { x: screen.canvas.width, y: screen.canvas.height };
     this.center = { x: this.size.x / 2, y: this.size.y / 2 };
 
-    this.bodies = createMountains(this);
-    this.player = new Player(this);
+    this.bodies = createMountains(this).concat(new Player(this));
 
     var self = this;
     var tick = function() {
@@ -20,19 +19,20 @@
 
   Game.prototype = {
     update: function() {
+      for (var i = 0; i < this.bodies.length; i++) {
+        if (this.bodies[i].update !== undefined) {
+          this.bodies[i].update();
+        }
+      }
+
       reportCollisions(this.bodies);
-      this.player.update();
     },
 
     draw: function(screen) {
       screen.clearRect(0, 0, this.size.x, this.size.y);
       for (var i = 0; i < this.bodies.length; i++) {
-        drawLine(screen, this.bodies[i], this.bodies[i] instanceof LandingPadLine ? 2 : 1);
+        this.bodies[i].draw(screen);
       }
-    },
-
-    addBody: function(body) {
-      this.bodies.push(body);
     },
 
     removeBody: function(body) {
@@ -43,31 +43,18 @@
     }
   };
 
-  var ShipBaseLine = function(game, p1, p2) {
-    this.game = game;
-    this.p1 = p1;
-    this.p2 = p2;
-  };
-
-  ShipBaseLine.prototype = {
-    collision: function(otherBody) {
-      this.game.player.resolveCollision(this, otherBody);
-    }
-  };
-
-  var ShipHullLine = function(game, p1, p2) {
-    this.game = game;
-    this.p1 = p1;
-    this.p2 = p2;
-  };
-
-  ShipHullLine.prototype = {
-    collision: function(otherBody) {
-      this.game.player.resolveCollision(this, otherBody);
-    }
-  };
-
   var MountainLine = function(p1, p2) {
+    this.p1 = p1;
+    this.p2 = p2;
+  };
+
+  MountainLine.prototype = {
+    draw: function(screen) {
+      drawLine(screen, this, 1);
+    }
+  };
+
+  var Line = function(p1, p2) {
     this.p1 = p1;
     this.p2 = p2;
   };
@@ -77,9 +64,10 @@
     this.p2 = p2;
   };
 
-  var BoostLine = function(p1, p2) {
-    this.p1 = p1;
-    this.p2 = p2;
+  LandingPadLine.prototype = {
+    draw: function(screen) {
+      drawLine(screen, this, 2);
+    }
   };
 
   var Player = function(game) {
@@ -88,22 +76,22 @@
     var w = 5;
 
     this.angle = 0;
-    this.center = { x: this.game.center.x, y: h * 2 };
+    var c = this.center = { x: this.game.center.x, y: h * 2 };
 
-    var c = this.center;
-    this.lines = [
-      new ShipBaseLine(game,
-                       { x: c.x - w * 2, y: c.y + h * 3 },
-                       { x: c.x + w * 2, y: c.y + h * 3 }),
-      new ShipHullLine(game, { x: c.x, y: c.y - h }, { x: c.x + w, y: c.y + h }),
-      new ShipHullLine(game, { x: c.x - w, y: c.y + h }, { x: c.x, y: c.y - h }),
-      new BoostLine({ x: c.x - w, y: c.y + h * 3 }, { x: c.x, y: c.y + h * 3 }),
-      new BoostLine({ x: c.x + w, y: c.y + h * 3 }, { x: c.x, y: c.y + h * 3 })
+    this.boostLines = [
+      new Line({ x: c.x - w, y: c.y + h * 3 }, { x: c.x, y: c.y + h * 3 }),
+      new Line({ x: c.x + w, y: c.y + h * 3 }, { x: c.x, y: c.y + h * 3 })
     ];
 
-    this.lines.forEach(function(l) {
-      this.game.addBody(l);
-    }, this);
+    this.baseLine = new Line({ x: c.x - w * 2, y: c.y + h * 3 },
+                             { x: c.x + w * 2, y: c.y + h * 3 });
+
+    this.hullLines = [
+      new Line({ x: c.x, y: c.y - h }, { x: c.x + w, y: c.y + h }),
+      new Line({ x: c.x - w, y: c.y + h }, { x: c.x, y: c.y - h })
+    ];
+
+    this.lines = this.hullLines.concat(this.baseLine);
 
     this.boosting = false;
     this.velocity = { x: 0, y: 0 };
@@ -116,7 +104,7 @@
       this.applyBoost();
 
       this.center = geom.translate(this.center, this.velocity);
-      this.lines.forEach(function(l) {
+      this.allLines().forEach(function(l) {
         l.p1 = geom.translate(l.p1, this.velocity);
         l.p2 = geom.translate(l.p2, this.velocity);
       }, this);
@@ -124,11 +112,20 @@
       this.handleKeyboard();
     },
 
+    draw: function(screen) {
+      this.allLines().forEach(function(l) {
+        drawLine(screen, l, 1);
+      });
+    },
+
+    allLines: function() {
+      return this.hullLines.concat(this.boostLines).concat(this.baseLine);
+    },
+
     applyGravity: function() {
-      var shipBaseLine = this.lines[0];
       var landed = this.game.bodies.filter(function(b) {
-        return b instanceof LandingPadLine && colliding(shipBaseLine, b);
-      }).length === 1;
+        return b instanceof LandingPadLine && colliding(this.baseLine, b);
+      }, this).length === 1;
 
       if (landed === false) {
         this.velocity.y += 0.002;
@@ -154,23 +151,24 @@
       if (this.keyboarder.isDown(this.keyboarder.KEYS.UP) && this.boosting === false) {
         this.boosting = true;
         var boostPointOffset = geom.rotate({ x: 0, y: 10 }, { x: 0, y: 0 }, this.angle);
-        this.lines[3].p2 = geom.translate(this.lines[3].p2, boostPointOffset);
-        this.lines[4].p2 = geom.translate(this.lines[4].p2, boostPointOffset);
+        this.boostLines.forEach(function(l) {
+          l.p2 = geom.translate(l.p2, boostPointOffset);
+        });
       } else if (this.keyboarder.isDown(this.keyboarder.KEYS.DOWN) && this.boosting === true) {
         this.boosting = false;
         var boostPointOffset = geom.rotate({ x: 0, y: -10 }, { x: 0, y: 0 }, this.angle);
-        this.lines[3].p2 = geom.translate(this.lines[3].p2, boostPointOffset);
-        this.lines[4].p2 = geom.translate(this.lines[4].p2, boostPointOffset);
+        this.boostLines.forEach(function(l) {
+          l.p2 = geom.translate(l.p2, boostPointOffset);
+        });
       }
     },
 
-    resolveCollision: function(playerLine, otherLine) {
-      this.isAtRightAngleForLanding();
-      if (playerLine instanceof ShipBaseLine && otherLine instanceof LandingPadLine &&
-          this.isAtRightAngleForLanding()) {
+    collision: function(otherBody) {
+      if (this.isAtRightAngleForLanding() &&
+          otherBody instanceof LandingPadLine && colliding(this.baseLine, otherBody)) {
         this.velocity = { x: 0, y: 0 };
-      } else if (otherLine instanceof MountainLine || otherLine instanceof LandingPadLine) {
-        this.die();
+      } else if (otherBody instanceof MountainLine || otherBody instanceof LandingPadLine) {
+        this.game.removeBody(this);
       }
     },
 
@@ -181,17 +179,11 @@
 
     rotate: function(angleChange) {
       this.angle += angleChange;
-      this.lines.forEach(function(l) {
+      this.allLines().forEach(function(l) {
         l.p1 = geom.rotate(l.p1, this.center, angleChange);
         l.p2 = geom.rotate(l.p2, this.center, angleChange);
       }, this);
     },
-
-    die: function() {
-      this.lines.forEach(function(l) {
-        this.game.removeBody(l);
-      }, this);
-    }
   };
 
   var Keyboarder = function() {
@@ -220,8 +212,22 @@
     screen.stroke();
   };
 
+  var anyLinesIntersecting = function(lines1, lines2) {
+    for (var i = 0; i < lines1.length; i++) {
+      for (var j = 0; j < lines2.length; j++) {
+        if (geom.linesIntersecting(lines1[i], lines2[j])) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  };
+
   var colliding = function(b1, b2) {
-    return b1 !== b2 && geom.linesIntersecting(b1, b2);
+    var lines1 = b1.lines ? b1.lines : [b1];
+    var lines2 = b2.lines ? b2.lines : [b2];
+    return anyLinesIntersecting(lines1, lines2);
   };
 
   var reportCollisions = function(bodies) {
