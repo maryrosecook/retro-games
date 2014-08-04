@@ -86,8 +86,8 @@
   var createInvaders = function(game) {
     var invaders = [];
     for (var i = 0; i < 24; i++) {
-      var x = 30 + (i % 8) * 30;
-      var y = 30 + (i % 3) * 30;
+      var x = 35 + (i % 8) * 30;
+      var y = 35 + (i % 3) * 30;
       invaders.push(new Invader(game, { x: x, y: y}));
     }
 
@@ -97,7 +97,7 @@
   var Player = function(game) {
     this.game = game;
     this.size = { x: 15, y: 15 };
-    this.center = { x: this.game.size.x / 2, y: this.game.size.y - this.size.y * 2 };
+    this.center = { x: this.game.size.x / 2, y: this.game.size.y - 35 };
     this.keyboarder = new Keyboarder();
   };
 
