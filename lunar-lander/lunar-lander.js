@@ -165,13 +165,18 @@
     },
 
     resolveCollision: function(playerLine, otherLine) {
-      if (playerLine instanceof ShipBaseLine && otherLine instanceof LandingPadLine) {
-        // allow terrible landing for now
+      this.isAtRightAngleForLanding();
+      if (playerLine instanceof ShipBaseLine && otherLine instanceof LandingPadLine &&
+          this.isAtRightAngleForLanding()) {
         this.velocity = { x: 0, y: 0 };
-      } else if ((playerLine instanceof ShipBaseLine || playerLine instanceof ShipHullLine) &&
-                 otherLine instanceof MountainLine) {
+      } else if (otherLine instanceof MountainLine || otherLine instanceof LandingPadLine) {
         this.die();
       }
+    },
+
+    isAtRightAngleForLanding: function() {
+      var angle = this.angle / 0.01745 + 90;
+      return (angle > 80 && angle < 100) || (angle > 260 && angle < 280);
     },
 
     rotate: function(angleChange) {
