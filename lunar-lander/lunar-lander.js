@@ -257,8 +257,8 @@
 
     var p1 = { x: 0, y: ordinate(h * 0.7, h) };
     while (p1.x < w) {
-      if ((3 + lines.length) % 5 === 0) {
-        var p2 = { x: p1.x + ordinate(30, 40), y: p1.y };
+      if ((3 + lines.length) % 4 === 0) {
+        var p2 = { x: p1.x + ordinate(30, 40), y: p1.y + Math.random() - 0.5 };
         lines.push(new LandingPadLine(p1, p2));
       } else {
         var p2 = { x: p1.x + ordinate(30, 40), y: ordinate(h * 0.7, h) };
