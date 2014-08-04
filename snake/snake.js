@@ -7,8 +7,7 @@
     this.size = { x: screen.canvas.width, y: screen.canvas.height };
     this.center = { x: this.size.x / 2, y: this.size.y / 2 };
 
-    this.bodies = createWalls(this)
-    this.player = new Player(this);
+    this.bodies = createWalls(this).concat(new HeadBlock(this));
     this.addFood();
 
     var self = this;
@@ -23,7 +22,12 @@
 
   Game.prototype = {
     update: function() {
-      this.player.update();
+      for (var i = 0; i < this.bodies.length; i++) {
+        if (this.bodies[i].update !== undefined) {
+          this.bodies[i].update();
+        }
+      }
+
       reportCollisions(this.bodies);
     },
 
@@ -112,44 +116,20 @@
     }
   };
 
-  var HeadBlock = function(game, player, center, direction) {
+  var HeadBlock = function(game) {
     this.game = game;
-    this.center = center;
-    this.direction = direction;
-    this.player = player;
+    this.center = { x: this.game.center.x, y: this.game.center.y };
+    this.direction = { x: 1, y: 0 };
     this.size = { x: BLOCK_SIZE, y: BLOCK_SIZE };
-  };
+    this.blocks = [];
 
-  HeadBlock.prototype = {
-    draw: function(screen) {
-      drawRect(screen, this, "black");
-    },
-
-    collision: function(otherBody) {
-      if (otherBody instanceof WallBlock || otherBody instanceof BodyBlock) {
-        this.player.die();
-      } else if (otherBody instanceof FoodBlock) {
-        this.player.eat();
-      }
-    }
-  };
-
-  var Player = function(game) {
-    this.game = game;
     this.keyboarder = new Keyboarder();
-
-    var head = new HeadBlock(this.game,
-                             this,
-                             { x: this.game.center.x, y: this.game.center.y },
-                             { x: 1, y: 0 });
-    this.game.addBody(head);
-    this.blocks = [head];
-
     this.lastMove = 0;
+
     this.addBlock = false;
   };
 
-  Player.prototype = {
+  HeadBlock.prototype = {
     update: function() {
       this.handleKeyboard();
 
@@ -160,47 +140,56 @@
       }
     },
 
-    move: function() {
-      var head = this.blocks[0];
-      var prevHeadCenter = { x: head.center.x, y: head.center.y };
-      head.center.x += head.direction.x * BLOCK_SIZE;
-      head.center.y += head.direction.y * BLOCK_SIZE;
+    draw: function(screen) {
+      drawRect(screen, this, "black");
+    },
 
-      if (this.addBlock === true) {
-        var block = new BodyBlock(this.game, prevHeadCenter);
-        this.game.addBody(block);
-        this.blocks.splice(1, 0, block);
-        this.addBlock = false;
-      } else {
-        var prevBlockCenter = prevHeadCenter;
-        for (var i = 1; i < this.blocks.length; i++) {
-          var oldCenter = this.blocks[i].center;
-          this.blocks[i].center = { x: prevBlockCenter.x, y: prevBlockCenter.y };
-          prevBlockCenter = oldCenter;
-        }
+    collision: function(otherBody) {
+      if (otherBody instanceof WallBlock || otherBody instanceof BodyBlock) {
+        this.die();
+      } else if (otherBody instanceof FoodBlock) {
+        this.eat();
       }
     },
 
     handleKeyboard: function() {
-      var head = this.blocks[0];
       if (this.keyboarder.isDown(this.keyboarder.KEYS.LEFT) &&
-          head.direction.x !== 1) {
-        head.direction.x = -1;
-        head.direction.y = 0;
+          this.direction.x !== 1) {
+        this.direction.x = -1;
+        this.direction.y = 0;
       } else if (this.keyboarder.isDown(this.keyboarder.KEYS.RIGHT) &&
-                 head.direction.x !== -1) {
-        head.direction.x = 1;
-        head.direction.y = 0;
+                 this.direction.x !== -1) {
+        this.direction.x = 1;
+        this.direction.y = 0;
       }
 
       if (this.keyboarder.isDown(this.keyboarder.KEYS.UP) &&
-          head.direction.y !== 1) {
-        head.direction.y = -1;
-        head.direction.x = 0;
+          this.direction.y !== 1) {
+        this.direction.y = -1;
+        this.direction.x = 0;
       } else if (this.keyboarder.isDown(this.keyboarder.KEYS.DOWN) &&
-                 head.direction.y !== -1) {
-        head.direction.y = 1;
-        head.direction.x = 0;
+                 this.direction.y !== -1) {
+        this.direction.y = 1;
+        this.direction.x = 0;
+      }
+    },
+
+    move: function() {
+      var prevBlockCenter = { x: this.center.x, y: this.center.y };
+      this.center.x += this.direction.x * BLOCK_SIZE;
+      this.center.y += this.direction.y * BLOCK_SIZE;
+
+      if (this.addBlock === true) {
+        var block = new BodyBlock(this.game, prevBlockCenter);
+        this.game.addBody(block);
+        this.blocks.push(block);
+        this.addBlock = false;
+      }
+
+      for (var i = 0; i < this.blocks.length; i++) {
+        var oldCenter = this.blocks[i].center;
+        this.blocks[i].center = { x: prevBlockCenter.x, y: prevBlockCenter.y };
+        prevBlockCenter = oldCenter;
       }
     },
 
@@ -210,6 +199,7 @@
     },
 
     die: function() {
+      this.game.removeBody(this);
       for (var i = 0; i < this.blocks.length; i++) {
         this.game.removeBody(this.blocks[i]);
       }
