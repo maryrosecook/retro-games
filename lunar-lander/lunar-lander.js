@@ -125,7 +125,14 @@
     },
 
     applyGravity: function() {
-      this.velocity.y += 0.002;
+      var shipBaseLine = this.lines[0];
+      var landed = this.game.bodies.filter(function(b) {
+        return b instanceof LandingPadLine && colliding(shipBaseLine, b);
+      }).length === 1;
+
+      if (landed === false) {
+        this.velocity.y += 0.002;
+      }
     },
 
     applyBoost: function() {
