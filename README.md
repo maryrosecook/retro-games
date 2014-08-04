@@ -1,6 +1,6 @@
 # Retro games
 
-Skeletal versions of Asteroids, Space Invaders, Lunar Lander and Snake in JavaScript.  Written as practice for my workshop at Strange Loop 2014.
+Skeletal versions of Asteroids, Lunar Lander, Space Invaders and Snake in JavaScript.  Written as practice for my workshop at Strange Loop 2014.
 
 * By Mary Rose Cook
 * http://maryrosecook.com
@@ -8,8 +8,8 @@ Skeletal versions of Asteroids, Space Invaders, Lunar Lander and Snake in JavaSc
 
 ![Screenshot of Asteroids](asteroids/screenshot.png)
 
-![Screenshot of Space Invaders](space-invaders/screenshot.png)
-
 ![Screenshot of Lunar Lander](lunar-lander/screenshot.png)
+
+![Screenshot of Space Invaders](space-invaders/screenshot.png)
 
 ![Screenshot of Snake](snake/screenshot.png)
