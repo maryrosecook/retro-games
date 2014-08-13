@@ -254,7 +254,7 @@
     return pairs;
   };
 
-  var colliding = function(b1, b2) {
+  var isColliding = function(b1, b2) {
     if (b1 === b2) return false;
     return pairs(pointsToLines(b1.points), pointsToLines(b2.points))
       .filter(function(x) {
@@ -266,7 +266,7 @@
     var collisions = [];
     for (var i = 0; i < bodies.length; i++) {
       for (var j = i + 1; j < bodies.length; j++) {
-        if (colliding(bodies[i], bodies[j])) {
+        if (isColliding(bodies[i], bodies[j])) {
           collisions.push([bodies[i], bodies[j]]);
         }
       }

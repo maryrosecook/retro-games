@@ -124,7 +124,7 @@
 
     applyGravity: function() {
       var landed = this.game.bodies.filter(function(b) {
-        return b instanceof LandingPadLine && colliding(this.baseLine, b);
+        return b instanceof LandingPadLine && isColliding(this.baseLine, b);
       }, this).length === 1;
 
       if (landed === false) {
@@ -165,7 +165,7 @@
 
     collision: function(otherBody) {
       if (this.isAtRightAngleForLanding() &&
-          otherBody instanceof LandingPadLine && colliding(this.baseLine, otherBody)) {
+          otherBody instanceof LandingPadLine && isColliding(this.baseLine, otherBody)) {
         this.velocity = { x: 0, y: 0 };
       } else if (otherBody instanceof MountainLine || otherBody instanceof LandingPadLine) {
         this.game.removeBody(this);
@@ -224,7 +224,7 @@
     return false;
   };
 
-  var colliding = function(b1, b2) {
+  var isColliding = function(b1, b2) {
     var lines1 = b1.lines ? b1.lines : [b1];
     var lines2 = b2.lines ? b2.lines : [b2];
     return anyLinesIntersecting(lines1, lines2);
@@ -234,7 +234,7 @@
     var collisions = [];
     for (var i = 0; i < bodies.length; i++) {
       for (var j = i + 1; j < bodies.length; j++) {
-        if (colliding(bodies[i], bodies[j])) {
+        if (isColliding(bodies[i], bodies[j])) {
           collisions.push([bodies[i], bodies[j]]);
         }
       }

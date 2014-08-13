@@ -141,7 +141,7 @@
         size: this.game.size
       };
 
-      if (!colliding(this, screenRect)) {
+      if (!isColliding(this, screenRect)) {
         this.game.removeBody(this);
       }
     },
@@ -173,7 +173,7 @@
                     body.size.x, body.size.y);
   };
 
-  var colliding = function(b1, b2) {
+  var isColliding = function(b1, b2) {
     return !(
       b1 === b2 ||
         b1.center.x + b1.size.x / 2 < b2.center.x - b2.size.x / 2 ||
@@ -187,7 +187,7 @@
     var collisions = [];
     for (var i = 0; i < bodies.length; i++) {
       for (var j = i + 1; j < bodies.length; j++) {
-        if (colliding(bodies[i], bodies[j])) {
+        if (isColliding(bodies[i], bodies[j])) {
           collisions.push([bodies[i], bodies[j]]);
         }
       }

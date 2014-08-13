@@ -51,7 +51,7 @@
 
     isSquareFree: function(center) {
       return this.bodies.filter(function(b) {
-        return colliding(b, { center: center });
+        return isColliding(b, { center: center });
       }).length === 0;
     },
 
@@ -224,7 +224,7 @@
     this.KEYS = { LEFT: 37, RIGHT: 39, UP: 38, DOWN: 40 };
   };
 
-  var colliding = function(b1, b2) {
+  var isColliding = function(b1, b2) {
     return b1 !== b2 &&
       b1.center.x === b2.center.x && b1.center.y === b2.center.y;
   };
@@ -233,7 +233,7 @@
     var collisions = [];
     for (var i = 0; i < bodies.length; i++) {
       for (var j = i + 1; j < bodies.length; j++) {
-        if (colliding(bodies[i], bodies[j])) {
+        if (isColliding(bodies[i], bodies[j])) {
           collisions.push([bodies[i], bodies[j]]);
         }
       }
