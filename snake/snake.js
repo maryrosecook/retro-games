@@ -1,8 +1,8 @@
 ;(function() {
   var BLOCK_SIZE = 10;
 
-  var Game = function(canvasId) {
-    var screen = document.getElementById(canvasId).getContext('2d');
+  var Game = function() {
+    var screen = document.getElementById("screen").getContext('2d');
 
     this.size = { x: screen.canvas.width, y: screen.canvas.height };
     this.center = { x: this.size.x / 2, y: this.size.y / 2 };
@@ -283,6 +283,6 @@
   };
 
   window.addEventListener('load', function() {
-    new Game("screen");
+    new Game();
   });
 })(this);
