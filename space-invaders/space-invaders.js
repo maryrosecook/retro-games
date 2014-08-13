@@ -1,6 +1,6 @@
 ;(function() {
   var Game = function() {
-    var screen = document.getElementById("space-invaders").getContext('2d');
+    var screen = document.getElementById("screen").getContext('2d');
     this.size = { x: screen.canvas.width, y: screen.canvas.height };
     this.bodies = createInvaders(this).concat(new Player(this));
 
