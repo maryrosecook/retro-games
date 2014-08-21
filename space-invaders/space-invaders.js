@@ -200,22 +200,22 @@
   };
 
   var reportCollisions = function(bodies) {
-    var collisions = [];
+    var bodyPairs = [];
     for (var i = 0; i < bodies.length; i++) {
       for (var j = i + 1; j < bodies.length; j++) {
         if (isColliding(bodies[i], bodies[j])) {
-          collisions.push([bodies[i], bodies[j]]);
+          bodyPairs.push([bodies[i], bodies[j]]);
         }
       }
     }
 
-    for (var i = 0; i < collisions.length; i++) {
-      if (collisions[i][0].collision !== undefined) {
-        collisions[i][0].collision(collisions[i][1]);
+    for (var i = 0; i < bodyPairs.length; i++) {
+      if (bodyPairs[i][0].collision !== undefined) {
+        bodyPairs[i][0].collision(bodyPairs[i][1]);
       }
 
-      if (collisions[i][1].collision !== undefined) {
-        collisions[i][1].collision(collisions[i][0]);
+      if (bodyPairs[i][1].collision !== undefined) {
+        bodyPairs[i][1].collision(bodyPairs[i][0]);
       }
     }
   };
