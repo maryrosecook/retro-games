@@ -30,7 +30,9 @@
     draw: function(screen) {
       screen.clearRect(0, 0, this.size.x, this.size.y);
       for (var i = 0; i < this.bodies.length; i++) {
-        drawRect(screen, this.bodies[i]);
+        if (this.bodies[i].draw !== undefined) {
+          this.bodies[i].draw(screen);
+        }
       }
     },
 
@@ -80,6 +82,10 @@
       this.patrolX += this.speedX;
     },
 
+    draw: function(screen) {
+      drawRect(screen, this);
+    },
+
     collision: function() {
       this.game.removeBody(this);
     }
@@ -121,6 +127,10 @@
       }
     },
 
+    draw: function(screen) {
+      drawRect(screen, this);
+    },
+
     collision: function() {
       this.game.removeBody(this);
     }
@@ -146,6 +156,10 @@
       if (!isColliding(this, screenRect)) {
         this.game.removeBody(this);
       }
+    },
+
+    draw: function(screen) {
+      drawRect(screen, this);
     },
 
     collision: function() {
