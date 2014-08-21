@@ -21,7 +21,9 @@
       reportCollisions(this.bodies);
 
       for (var i = 0; i < this.bodies.length; i++) {
-        this.bodies[i].update();
+        if (this.bodies[i].update !== undefined) {
+          this.bodies[i].update();
+        }
       }
     },
 
