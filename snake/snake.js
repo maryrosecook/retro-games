@@ -51,7 +51,7 @@
 
     isSquareFree: function(center) {
       return this.bodies.filter(function(b) {
-        return isColliding(b, { center: center });
+        return isColliding(b, { center: center, size: { x: BLOCK_SIZE, y: BLOCK_SIZE }});
       }).length === 0;
     },
 
@@ -67,10 +67,10 @@
     }
   };
 
-  var WallBlock = function(game, center) {
+  var WallBlock = function(game, center, size) {
     this.game = game;
     this.center = center;
-    this.size = { x: BLOCK_SIZE, y: BLOCK_SIZE };
+    this.size = size;
   };
 
   WallBlock.prototype = {
@@ -225,8 +225,13 @@
   };
 
   var isColliding = function(b1, b2) {
-    return b1 !== b2 &&
-      b1.center.x === b2.center.x && b1.center.y === b2.center.y;
+    return !(
+      b1 === b2 ||
+        b1.center.x + b1.size.x / 2 <= b2.center.x - b2.size.x / 2 ||
+        b1.center.y + b1.size.y / 2 <= b2.center.y - b2.size.y / 2 ||
+        b1.center.x - b1.size.x / 2 >= b2.center.x + b2.size.x / 2 ||
+        b1.center.y - b1.size.y / 2 >= b2.center.y + b2.size.y / 2
+    );
   };
 
   var reportCollisions = function(bodies) {
@@ -252,27 +257,21 @@
 
   var createWalls = function(game) {
     var walls = [];
+    walls.push(new WallBlock(game,
+                             { x: game.center.x, y: BLOCK_SIZE / 2 },
+                             { x: game.size.x, y: BLOCK_SIZE })); // top
 
-    // top
-    for (var x = BLOCK_SIZE / 2; x < game.size.x; x += BLOCK_SIZE) {
-      walls.push(new WallBlock(game, { x: x, y: BLOCK_SIZE / 2 }));
-    }
+    walls.push(new WallBlock(game,
+                             { x: game.size.x - BLOCK_SIZE / 2, y: game.center.y },
+                             { x: BLOCK_SIZE, y: game.size.y - BLOCK_SIZE * 2 })); // right
 
-    // left
-    for (var y = BLOCK_SIZE / 2 + BLOCK_SIZE; y < game.size.y - BLOCK_SIZE; y += BLOCK_SIZE) {
-      walls.push(new WallBlock(game, { x: BLOCK_SIZE / 2, y: y }));
-    }
+    walls.push(new WallBlock(game,
+                             { x: game.center.x, y: game.size.y - BLOCK_SIZE / 2 },
+                             { x: game.size.x, y: BLOCK_SIZE })); // bottom
 
-    // right
-    for (var y = BLOCK_SIZE / 2 + BLOCK_SIZE; y < game.size.y - BLOCK_SIZE; y += BLOCK_SIZE) {
-      walls.push(new WallBlock(game, { x: game.size.x - BLOCK_SIZE / 2, y: y }));
-    }
-
-    // bottom
-    for (var x = BLOCK_SIZE / 2; x < game.size.x; x += BLOCK_SIZE) {
-      walls.push(new WallBlock(game, { x: x, y: game.size.y - BLOCK_SIZE / 2 }));
-    }
-
+    walls.push(new WallBlock(game,
+                             { x: BLOCK_SIZE / 2, y: game.center.y },
+                             { x: BLOCK_SIZE, y: game.size.y - BLOCK_SIZE * 2 })); // left
     return walls;
   };
 
