@@ -62,6 +62,8 @@
     this.size = { x: 15, y: 15 };
     this.patrolX = 0;
     this.speedX = 0.3;
+    this.patrolY = 0;
+    this.speedY = 0.3;
   };
 
   Invader.prototype = {
@@ -79,7 +81,9 @@
       }
 
       this.center.x += this.speedX;
-      this.patrolX += this.speedX;
+      this.patrolX += this.speedX;      
+      this.center.y += this.speedY;
+      this.patrolY += this.speedY;     
     },
 
     draw: function(screen) {
@@ -111,9 +115,9 @@
 
   Player.prototype = {
     update: function() {
-      if (this.keyboarder.isDown(this.keyboarder.KEYS.LEFT)) {
+      if (this.keyboarder.isDown(this.keyboarder.KEYS.LEFT) && this.center.x > 36) {          
         this.center.x -= 2;
-      } else if (this.keyboarder.isDown(this.keyboarder.KEYS.RIGHT)) {
+      } else if (this.keyboarder.isDown(this.keyboarder.KEYS.RIGHT) && this.center.x < 274) {
         this.center.x += 2;
       }
 
